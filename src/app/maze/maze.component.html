@@ -1,0 +1,15 @@
+<div style="text-align:center">
+  <h1> {{ title }} </h1>
+  <form [formGroup]="options">
+    <mat-form-field>
+      <input matInput placeholder="# Rows" type="number" formControlName="rows">
+    </mat-form-field>
+    <mat-form-field>
+      <input matInput placeholder="# Columns" type="number" formControlName="columns">
+    </mat-form-field>
+    <button mat-stroked-button (click)="drawMaze()">Draw Maze</button>
+    </form>
+  <section>
+    <canvas id="maze"></canvas>
+  </section>
+</div>
