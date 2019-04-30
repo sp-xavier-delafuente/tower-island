@@ -1,9 +1,8 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { Maze } from '../models/maze';
+import { MazeView } from '../models/mazeview';
 import * as PF from './js/PathFinding';
 import * as StateMachine from 'javascript-state-machine';
-import { throwMatDialogContentAlreadyAttachedError } from '@angular/material';
 
 @Component({
   selector: 'app-maze',
@@ -16,10 +15,10 @@ export class MazeComponent implements OnInit, AfterViewInit {
   nodeSize = 20;
   rows: number;
   columns: number;
-  private mazeView: Maze;
+  private mazeView: MazeView;
   options: FormGroup;
 
-  stateMachine: StateMachine.StateMachine;
+  stateMachine: any;
   grid: PF.Grid;
   operationsPerSecond: 300;
 
@@ -116,17 +115,13 @@ export class MazeComponent implements OnInit, AfterViewInit {
     ],
     callbacks:{
         onleavenone() {
-            that.rows = that.options.get('rows').value;
-            that.columns = that.options.get('columns').value;
+            that.rows = that.options.get('rows').value * 2 - 1;
+            that.columns = that.options.get('columns').value * 2 - 1;
             that.grid = new PF.Grid(that.columns, that.rows);
-            that.mazeView = new Maze(that.rows, that.columns);
-            that.mazeView.drawMaze();
-
-            console.log(that.grid);
+            that.mazeView = new MazeView(that.rows, that.columns);
 
             this.setDefaultStartEndPos();
             this.transition(); // transit to the next state (ready)
-
             this.hookPathFinding();
 
             return StateMachine.ASYNC;
@@ -153,11 +148,16 @@ export class MazeComponent implements OnInit, AfterViewInit {
             // => modified
         },
         onreset: function(event, from, to) {
-            setTimeout(function() {
-                this.clearOperations();
-                this.clearAll();
-                this.buildNewGrid();
-            }, that.mazeView.nodeColorizeEffect.duration * 1.2);
+            console.log(this);
+
+            that.rows = that.options.get('rows').value * 2 - 1;
+            that.columns = that.options.get('columns').value * 2 - 1;
+            this.clearAll();
+            this.buildNewGrid();
+
+            that.mazeView.drawMaze(that.rows, that.columns);
+            this.setDefaultStartEndPos();
+
             // => ready
         },
     
@@ -323,7 +323,7 @@ export class MazeComponent implements OnInit, AfterViewInit {
             that.mazeView.clearBlockedNodes();
         },
         buildNewGrid() {
-            that.grid = new PF.Grid(that.rows, that.columns);
+            that.grid = new PF.Grid(that.columns, that.rows);
         },
         /**
          * When initializing, this method will be called to set the positions
@@ -345,7 +345,6 @@ export class MazeComponent implements OnInit, AfterViewInit {
             that.mazeView.setEndPos(Number(gridX), Number(gridY));
         },
         setWalkableAt(gridX, gridY, walkable) {
-           // console.log(that.grid);
             that.grid.setWalkableAt(gridX, gridY, walkable);
             that.mazeView.setAttributeAt(Number(gridX), Number(gridY), 'walkable', walkable);
         },
@@ -369,20 +368,13 @@ export class MazeComponent implements OnInit, AfterViewInit {
 
     onMouseDown(event: any)
     {
-        var coord = this.mazeView.toGridCoordinate(event.pageX, event.pageY),
+        var coord = this.mazeView.toGridCoordinate(event.clientX, event.clientY),
             gridX = coord[0],
             gridY = coord[1];
 
-            console.log(this.grid);
-
-        if(!((gridX >= 0 && gridX < this.grid.width) && (gridY >= 0 && gridY < this.grid.height)))
-        {
-            console.log("invalid pos:", gridX, gridY);
+        if(!this.stateMachine.isValidPosition(gridX, gridY)) {
             return;
         }
-
-        console.log("valid pos:", gridX, gridY);
-        
 
         if (this.stateMachine.can('dragStart') && this.stateMachine.isStartPos(gridX, gridY)) {
             this.stateMachine.dragStart();
@@ -392,13 +384,11 @@ export class MazeComponent implements OnInit, AfterViewInit {
             this.stateMachine.dragEnd();
             return;
         }
-        if (this.stateMachine.can('drawWall') && this.grid.isWalkableAt(gridX, gridY)) {
-            console.log("draw wall");
+        if (this.stateMachine.can('drawWall') && this.grid.isWallPosition(gridX, gridY) && this.grid.isWalkableAt(gridX, gridY)) {
             this.stateMachine.drawWall(gridX, gridY);
             return;
         }
-        if (this.stateMachine.can('eraseWall') && !this.grid.isWalkableAt(gridX, gridY)) {
-            console.log("erase wall");
+        if (this.stateMachine.can('eraseWall') && this.grid.isWallPosition(gridX, gridY) && !this.grid.isWalkableAt(gridX, gridY)) {
             this.stateMachine.eraseWall(gridX, gridY);
         }
     }
@@ -410,7 +400,7 @@ export class MazeComponent implements OnInit, AfterViewInit {
     }
 
     onMouseMove(event: any) {
-        var coord = this.mazeView.toGridCoordinate(event.pageX, event.pageY),
+        var coord = this.mazeView.toGridCoordinate(event.clientX, event.clientY),
             gridX = coord[0],
             gridY = coord[1];
 
@@ -435,10 +425,16 @@ export class MazeComponent implements OnInit, AfterViewInit {
                 }
                 break;
             case 'drawingWall':
-                this.stateMachine.setWalkableAt(gridX, gridY, false);
+                if(this.grid.isWallPosition(gridX, gridY))
+                {
+                    this.stateMachine.setWalkableAt(gridX, gridY, false);
+                }
                 break;
             case 'erasingWall':
-                this.stateMachine.setWalkableAt(gridX, gridY, true);
+                if(this.grid.isWallPosition(gridX, gridY))
+                {
+                    this.stateMachine.setWalkableAt(gridX, gridY, true);
+                }
                 break;
         }
     }
@@ -449,6 +445,6 @@ export class MazeComponent implements OnInit, AfterViewInit {
 
   drawMaze()
   {
-    this.mazeView.drawMaze();
+    this.stateMachine.reset();
   }
 }

@@ -54,6 +54,9 @@ Grid.prototype._buildNodes = function(width, height, matrix) {
         nodes[i] = new Array(width);
         for (j = 0; j < width; ++j) {
             nodes[i][j] = new Node(j, i);
+            if (this.isOdd(i) || this.isOdd(j)) {
+                nodes[i][j].isWallPosition = true;
+            }
         }
     }
 
@@ -79,11 +82,25 @@ Grid.prototype._buildNodes = function(width, height, matrix) {
     return nodes;
 };
 
+Grid.prototype.isOdd = function(num) {
+    return num % 2;
+};
+
 
 Grid.prototype.getNodeAt = function(x, y) {
     return this.nodes[y][x];
 };
 
+/**
+ * Determine whether the node at the given position is a wall position.
+ * (Also returns false if the position is outside the grid.)
+ * @param {number} x - The x coordinate of the node.
+ * @param {number} y - The y coordinate of the node.
+ * @return {boolean} - If it's a wall node.
+ */
+Grid.prototype.isWallPosition = function(x, y) {
+    return this.isInside(x, y) && this.nodes[y][x].isWallPosition;
+};
 
 /**
  * Determine whether the node at the given position is walkable.
@@ -119,7 +136,9 @@ Grid.prototype.isInside = function(x, y) {
  * @param {boolean} walkable - Whether the position is walkable.
  */
 Grid.prototype.setWalkableAt = function(x, y, walkable) {
-    this.nodes[y][x].walkable = walkable;
+    if (this.nodes[y][x].isWallPosition) {
+        this.nodes[y][x].walkable = walkable;
+    }
 };
 
 
@@ -145,10 +164,14 @@ Grid.prototype.getNeighbors = function(node, diagonalMovement) {
     var x = node.x,
         y = node.y,
         neighbors = [],
-        s0 = false, d0 = false,
-        s1 = false, d1 = false,
-        s2 = false, d2 = false,
-        s3 = false, d3 = false,
+        s0 = false,
+        d0 = false,
+        s1 = false,
+        d1 = false,
+        s2 = false,
+        d2 = false,
+        s3 = false,
+        d3 = false,
         nodes = this.nodes;
 
     // ↑
@@ -233,7 +256,7 @@ Grid.prototype.clone = function() {
     for (i = 0; i < height; ++i) {
         newNodes[i] = new Array(width);
         for (j = 0; j < width; ++j) {
-            newNodes[i][j] = new Node(j, i, thisNodes[i][j].walkable);
+            newNodes[i][j] = new Node(j, i, thisNodes[i][j].isWallPosition, thisNodes[i][j].walkable);
         }
     }
 
