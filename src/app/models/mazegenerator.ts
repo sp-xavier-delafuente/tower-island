@@ -3,7 +3,7 @@ import { Cell } from './cell';
 /**
  * A 2-dimensional maze generated based on "hunt-and-kill" algorithm.
  */
-export class Maze {
+export class MazeGenerator {
   public readonly cells: Array<Array<Cell>> = [];
 
   constructor(public nRow: number, public nCol: number) {

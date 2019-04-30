@@ -1,6 +1,8 @@
 import { Component, OnInit, AfterViewInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MazeView } from '../models/mazeview';
+import { MazeGenerator } from '../models/mazegenerator';
+//import { Cell } from '../models/cell';
 import * as PF from './js/PathFinding';
 import * as StateMachine from 'javascript-state-machine';
 
@@ -16,11 +18,13 @@ export class MazeComponent implements OnInit, AfterViewInit {
   rows: number;
   columns: number;
   private mazeView: MazeView;
+  private mazeGenerator: MazeGenerator;
   options: FormGroup;
 
   stateMachine: any;
   grid: PF.Grid;
   operationsPerSecond: 300;
+
 
   constructor(fb: FormBuilder) { 
     this.options = fb.group({
@@ -117,8 +121,9 @@ export class MazeComponent implements OnInit, AfterViewInit {
         onleavenone() {
             that.rows = that.options.get('rows').value * 2 - 1;
             that.columns = that.options.get('columns').value * 2 - 1;
-            that.grid = new PF.Grid(that.columns, that.rows);
+            
             that.mazeView = new MazeView(that.rows, that.columns);
+            this.buildNewGrid();
 
             this.setDefaultStartEndPos();
             this.transition(); // transit to the next state (ready)
@@ -148,14 +153,12 @@ export class MazeComponent implements OnInit, AfterViewInit {
             // => modified
         },
         onreset: function(event, from, to) {
-            console.log(this);
-
             that.rows = that.options.get('rows').value * 2 - 1;
             that.columns = that.options.get('columns').value * 2 - 1;
             this.clearAll();
-            this.buildNewGrid();
 
             that.mazeView.drawMaze(that.rows, that.columns);
+            this.buildNewGrid();
             this.setDefaultStartEndPos();
 
             // => ready
@@ -324,6 +327,30 @@ export class MazeComponent implements OnInit, AfterViewInit {
         },
         buildNewGrid() {
             that.grid = new PF.Grid(that.columns, that.rows);
+            let r: number = (that.rows + 1) / 2;
+            let c: number = (that.columns + 1) / 2;
+            that.mazeGenerator = new MazeGenerator(r, c);
+
+            console.log("generator", r, c);
+            for(let i = 0; i < that.mazeGenerator.cells.length; i++)
+            {
+                for(let j = 0; j < that.mazeGenerator.cells[i].length; j++)
+                {
+                    if(that.mazeGenerator.cells[i][j].southWall)
+                    {
+                       this.setWalkableAt((j * 2), (i * 2) + 1, false);
+                       this.setWalkableAt((j * 2) + 1, (i * 2) + 1, false);
+                       this.setWalkableAt((j * 2) - 1, (i * 2) + 1, false);
+                    }
+
+                    if(that.mazeGenerator.cells[i][j].eastWall)
+                    {
+                        this.setWalkableAt((j * 2) + 1, (i * 2), false);
+                        this.setWalkableAt((j * 2) + 1, (i * 2) - 1, false);
+                        this.setWalkableAt((j * 2) + 1, (i * 2) + 1, false);
+                    }
+                }
+            }
         },
         /**
          * When initializing, this method will be called to set the positions
@@ -345,8 +372,12 @@ export class MazeComponent implements OnInit, AfterViewInit {
             that.mazeView.setEndPos(Number(gridX), Number(gridY));
         },
         setWalkableAt(gridX, gridY, walkable) {
-            that.grid.setWalkableAt(gridX, gridY, walkable);
-            that.mazeView.setAttributeAt(Number(gridX), Number(gridY), 'walkable', walkable);
+            console.log("setwalkable", that.grid.width, that.grid.height, "input", gridX, gridY);
+            if(Number(gridX) >= 0 && gridX < that.grid.width && Number(gridY) >= 0 && gridY < that.grid.height)
+            {
+                that.grid.setWalkableAt(gridX, gridY, walkable);
+                that.mazeView.setAttributeAt(Number(gridX), Number(gridY), 'walkable', walkable);
+            }
         },
         isStartPos(gridX, gridY) {
             return gridX === this.startX && gridY === this.startY;

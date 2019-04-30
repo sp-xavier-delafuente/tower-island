@@ -1,5 +1,6 @@
 import * as Raphael from 'raphael';
 
+
 /**
  * A 2-dimensional maze generated based on "hunt-and-kill" algorithm.
  */
@@ -76,15 +77,25 @@ export class MazeView {
     this.rects = [];
     this.columns = nCol;
     this.rows = nRow;
+    this.startNode = null;
+    this.endNode = null;
+    this.blockedNodes = new Array(this.rows);
+    for (let i = 0; i < this.rows; ++i) {
+        this.blockedNodes[i] = [];
+    }
+    this.paper.clear();
     this.paper.setSize(this.columns * this.nodeSize, this.rows * this.nodeSize);
+
     let accumWidth = 0;
     let accumHeight = 0;
     let rectWidth = 0;
     let rectHeight = 0;
-    for (let i = 0; i < this.rows; ++i) {
+    for (let i = 0; i < this.rows; ++i) 
+    {
       this.rects[i] = [];
       rectHeight = this.isOdd(i) ? this.nodeSize / 2 : this.nodeSize;
-      for (let j = 0; j < this.columns; ++j) {
+      for (let j = 0; j < this.columns; ++j) 
+      {
         rectWidth = this.isOdd(j) ? this.nodeSize / 2 : this.nodeSize;
         let rect = this.paper.rect(accumWidth, accumHeight, rectWidth, rectHeight);
         rect.attr(this.nodeStyle.normal);
@@ -181,12 +192,7 @@ zoomNode(node:RaphaelElement) {
 
 setWalkableAt(gridX:number, gridY:number, value:any) {
     var node, i, blockedNodes = this.blockedNodes;
-    if (!blockedNodes) {
-        blockedNodes = this.blockedNodes = new Array(this.rows);
-        for (i = 0; i < this.rows; ++i) {
-            blockedNodes[i] = [];
-        }
-    }
+    
     node = blockedNodes[gridY][gridX];
     if (value) {
         // clear blocked node
