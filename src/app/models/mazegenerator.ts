@@ -22,30 +22,6 @@ export class MazeGenerator {
     this.huntAndKill(current);
   }
 
-  /*draw(canvas: HTMLCanvasElement, cellPixels: number, lineThickness = 2) {
-    var ctx = canvas.getContext('2d');
-    ctx.lineWidth = lineThickness;
-    this.cells.forEach(x =>
-      x.forEach(c => {
-        c.draw(ctx, cellPixels);
-      })
-    );
-  }
-
-  drawPath(canvas: HTMLCanvasElement, cellPixels: number, lineThickness = 4) {
-    var ctx = canvas.getContext('2d');
-    ctx.lineWidth = lineThickness;
-    ctx.strokeStyle = '#4080ff';
-    ctx.beginPath();
-    ctx.moveTo(0, cellPixels / 2);
-    
-    this.findPath().forEach(x =>
-        ctx.lineTo((x.col + 0.5) * cellPixels, (x.row + 0.5) * cellPixels)
-    );
-    ctx.lineTo(this.nCol * cellPixels, (this.nRow - 0.5) * cellPixels)
-    ctx.stroke();
-  }*/
-
   findPath(): Array<Cell> {
     this.cells.forEach(x => x.forEach(c => (c.traversed = false)));
     const start = this.cells[0][0];

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, FormArray, FormControl, Validators } from '@angular/forms';
 
-import { ConfigService } from './config.service';
+import { ConfigService } from '../config.service';
 
 @Component({
   selector: 'app-config',
@@ -10,25 +10,22 @@ import { ConfigService } from './config.service';
 })
 export class ConfigComponent implements OnInit {
 
-  displayedColumns: string[] = ['position', 'name', 'weight', 'symbol'];
-  dataSource = this.core.list$;
+  displayedColumns: string[] = ['name', 'color'];
+  dataSource = this.core.rewardList$;
   controls: FormArray;
 
   constructor(private core: ConfigService){}
 
   ngOnInit() {
    
-    const toGroups = this.core.list$.value.map(entity => {
+    const toGroups = this.core.rewardList$.value.map(entity => {
       return new FormGroup({
-        position:  new FormControl(entity.position, Validators.required),
         name: new FormControl(entity.name, Validators.required), 
-        weight: new FormControl(entity.weight, Validators.required),
-        symbol: new FormControl(entity.symbol, Validators.required)
+        color: new FormControl(entity.color, Validators.required),
       },{updateOn: "blur"});
     });
 
     this.controls = new FormArray(toGroups);
-
   }
 
 

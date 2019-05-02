@@ -142,6 +142,11 @@ export class MazeView {
       }
   }
 
+  setColor(gridX: number, gridY: number, color: string) {
+    var coord = this.toPageCoordinate(gridX, gridY);
+    this.rects[gridY][gridX].attr({fill:color}).toFront();
+  }
+
 /**
  * Set the attribute of the node at the given coordinate.
  */

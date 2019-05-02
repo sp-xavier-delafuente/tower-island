@@ -1,11 +1,15 @@
 <h1 mat-dialog-title>Cell reward</h1>
-<div mat-dialog-content>
-    <p>Select reward:</p>
+<mat-dialog-content [formGroup]="form">
     <mat-form-field>
-        <input matInput>
+        <mat-label>Reward type</mat-label>
+        <mat-select formControlName="reward">
+            <mat-option *ngFor="let reward of rewards" [value]="reward.id">
+                {{reward.name}}
+            </mat-option>
+        </mat-select>
     </mat-form-field>
-</div>
+</mat-dialog-content>
 <div mat-dialog-actions>
-    <button mat-button (click)="onNoClick()">No Thanks</button>
-    <button mat-button cdkFocusInitial>Ok</button>
+    <button mat-button (click)="onNoClick()">Cancel</button>
+    <button mat-button (click)="onSave()" cdkFocusInitial>Ok</button>
 </div>

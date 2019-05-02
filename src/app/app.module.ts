@@ -1,5 +1,6 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
+import { MccColorPickerModule } from 'material-community-components';
 
 import { MatTabsModule } from '@angular/material';
 import { MatToolbarModule } from '@angular/material/toolbar';
@@ -10,13 +11,13 @@ import { ReactiveFormsModule  } from '@angular/forms';
 import { MatDialogModule } from '@angular/material';
 import { MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
+import { MatSelectModule } from '@angular/material/select';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { MazeComponent, MazeRewardDialog } from './maze/maze.component';
 import { ConfigComponent } from './config/config.component';
-import { CheckboxComponent } from './checkbox/checkbox.component';
 import { ViewModeDirective } from './editable/view-mode.directive';
 import { EditModeDirective } from './editable/edit-mode.directive';
 import { EditableOnEnterDirective } from './editable/editable-on-enter.directive';
@@ -29,7 +30,6 @@ import { FocusableDirective } from './focusable.directive';
     MazeComponent,
     MazeRewardDialog,
     ConfigComponent,
-    CheckboxComponent,
     EditableComponent,
     ViewModeDirective,
     EditModeDirective,
@@ -48,7 +48,11 @@ import { FocusableDirective } from './focusable.directive';
     ReactiveFormsModule,
     MatDialogModule, 
     MatTableModule,
-    MatCardModule
+    MatCardModule,
+    MatSelectModule,
+    MccColorPickerModule.forRoot({
+      used_colors: ['#000000', '#123456', '#777666']
+    })
   ],
   entryComponents: [
     MazeRewardDialog
