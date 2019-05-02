@@ -1,10 +1,14 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit, AfterViewInit, Inject } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { MazeView } from '../models/mazeview';
 import { MazeGenerator } from '../models/mazegenerator';
-//import { Cell } from '../models/cell';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
 import * as PF from './js/PathFinding';
 import * as StateMachine from 'javascript-state-machine';
+
+export interface RewardDialogData {
+    reward: string;
+  }
 
 @Component({
   selector: 'app-maze',
@@ -26,7 +30,7 @@ export class MazeComponent implements OnInit, AfterViewInit {
   operationsPerSecond: 300;
 
 
-  constructor(fb: FormBuilder) { 
+  constructor(fb: FormBuilder, public dialog: MatDialog) { 
     this.options = fb.group({
       rows: 20,
       columns: 7
@@ -331,7 +335,6 @@ export class MazeComponent implements OnInit, AfterViewInit {
             let c: number = (that.columns + 1) / 2;
             that.mazeGenerator = new MazeGenerator(r, c);
 
-            console.log("generator", r, c);
             for(let i = 0; i < that.mazeGenerator.cells.length; i++)
             {
                 for(let j = 0; j < that.mazeGenerator.cells[i].length; j++)
@@ -372,7 +375,6 @@ export class MazeComponent implements OnInit, AfterViewInit {
             that.mazeView.setEndPos(Number(gridX), Number(gridY));
         },
         setWalkableAt(gridX, gridY, walkable) {
-            console.log("setwalkable", that.grid.width, that.grid.height, "input", gridX, gridY);
             if(Number(gridX) >= 0 && gridX < that.grid.width && Number(gridY) >= 0 && gridY < that.grid.height)
             {
                 that.grid.setWalkableAt(gridX, gridY, walkable);
@@ -421,6 +423,10 @@ export class MazeComponent implements OnInit, AfterViewInit {
         }
         if (this.stateMachine.can('eraseWall') && this.grid.isWallPosition(gridX, gridY) && !this.grid.isWalkableAt(gridX, gridY)) {
             this.stateMachine.eraseWall(gridX, gridY);
+            return;
+        }
+        if(!this.grid.isWallPosition(gridX, gridY)){
+            this.openDialog(gridX, gridY);
         }
     }
 
@@ -470,6 +476,18 @@ export class MazeComponent implements OnInit, AfterViewInit {
         }
     }
 
+    openDialog(gridX, gridY): void {
+        const dialogRef = this.dialog.open(MazeRewardDialog, {
+          width: '250px',
+         // data: {name: this.name, animal: this.animal}
+        });
+    
+        dialogRef.afterClosed().subscribe(result => {
+          console.log('The dialog was closed');
+          //this.reward = result;
+        });
+      }
+
   ngAfterViewInit() {
     this.stateMachine.init();
   }
@@ -479,3 +497,19 @@ export class MazeComponent implements OnInit, AfterViewInit {
     this.stateMachine.reset();
   }
 }
+
+@Component({
+    selector: 'maze-reward-dialog',
+    templateUrl: 'maze-reward-dialog.html',
+  })
+  export class MazeRewardDialog {
+  
+    constructor(
+      public dialogRef: MatDialogRef<MazeRewardDialog>,
+      @Inject(MAT_DIALOG_DATA) public data: RewardDialogData) {}
+  
+    onNoClick(): void {
+      this.dialogRef.close();
+    }
+  
+  }
