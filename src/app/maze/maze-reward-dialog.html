@@ -2,13 +2,19 @@
 <mat-dialog-content [formGroup]="form">
     <mat-form-field>
         <mat-label>Reward type</mat-label>
-        <mat-select formControlName="reward">
+        <mat-select formControlName="reward" (selectionChange)="onChanged($event)">
             <mat-option *ngFor="let reward of rewards" [value]="reward.id">
                 {{reward.name}}
             </mat-option>
         </mat-select>
     </mat-form-field>
+    <mat-form-field>
+        <mat-label>Amount</mat-label>
+        <input matInput placeholder="Amount" type="number" formControlName="amount">
+    </mat-form-field>
 </mat-dialog-content>
+<div *ngIf="rewardValue.rewardId === 0">zeroo
+</div>
 <div mat-dialog-actions>
     <button mat-button (click)="onNoClick()">Cancel</button>
     <button mat-button (click)="onSave()" cdkFocusInitial>Ok</button>

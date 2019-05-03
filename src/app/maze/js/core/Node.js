@@ -29,8 +29,6 @@ function Node(x, y, isWallPosition, walkable) {
      * @type boolean
      */
     this.isWallPosition = (isWallPosition === undefined ? false : isWallPosition)
-
-    this.rewardId = 0;
 }
 
 module.exports = Node;

@@ -1,20 +1,21 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs'
 
-import { RewardElement } from './models/rewards';
+import { RewardConfigElement } from './models/rewards';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ConfigService {
 
-  rewardList: RewardElement[] = [
-    { id: 1, name: 'Food', color: '#FF0000', },
-    { id: 2, name: 'Gold', color: '#F1C232' },
-    { id: 3, name: 'Event points', color: '#A64D79' },
-    { id: 4, name: 'Cash', color:'#D9D2E9' }
+  rewardList: RewardConfigElement[] = [
+    { id: 0, name: 'None', color: '#FFFFFF', minAmount: 0, maxAmount: 0, probability: 50},
+    { id: 1, name: 'Food', color: '#FF0000', minAmount: 200, maxAmount: 1000, probability: 20},
+    { id: 2, name: 'Gold', color: '#F1C232', minAmount: 30, maxAmount: 2000, probability: 20},
+    { id: 3, name: 'Event points', color: '#A64D79', minAmount: 5, maxAmount: 100, probability: 8},
+    { id: 4, name: 'Cash', color:'#D9D2E9', minAmount: 2, maxAmount: 20, probability: 2}
   ];
-  rewardList$: BehaviorSubject<RewardElement[]> = new BehaviorSubject(this.rewardList);
+  rewardList$: BehaviorSubject<RewardConfigElement[]> = new BehaviorSubject(this.rewardList);
 
   constructor() {
   }
@@ -32,11 +33,15 @@ export class ConfigService {
     this.rewardList$.next(this.rewardList);
   }
 
-  getRewards(): RewardElement[] {
+  getConfigRewards(): RewardConfigElement[] {
     return this.rewardList;
   }
 
-  getReward(id: number): RewardElement {
+  getConfigReward(id: number): RewardConfigElement {
     return this.rewardList.find(i => i.id === id);
+  }
+
+  getTotalProbabilty() {
+    return this.rewardList.map(t => t.probability).reduce((acc, value) => acc + value, 0);
   }
 }

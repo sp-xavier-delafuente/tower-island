@@ -10,7 +10,7 @@
             <!-- Name Column -->
             <ng-container matColumnDef="name">
                 <th mat-header-cell *matHeaderCellDef> Name </th>
-                <td mat-cell *matCellDef="let element;let index = index" style="width:50%">
+                <td mat-cell *matCellDef="let element;let index = index" style="width:20%">
                     <editable (update)="updateField(index, 'name')">
                         <ng-template viewMode>
                             {{element.name}}
@@ -25,12 +25,13 @@
                         </ng-template>
                     </editable>
                 </td>
+                <td mat-footer-cell *matFooterCellDef> Total </td>
             </ng-container>
 
             <!-- Color Column -->
             <ng-container matColumnDef="color">
                 <th mat-header-cell *matHeaderCellDef> Color </th>
-                <td mat-cell *matCellDef="let element;let index = index" style="width:50%">
+                <td mat-cell *matCellDef="let element;let index = index" style="width:20%">
                     <editable (update)="updateField(index, 'color')">
                         <ng-template viewMode>
                             {{element.color}}
@@ -40,10 +41,60 @@
                         </ng-template>
                     </editable>
                 </td>
+                <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
+
+            <!-- Min Column -->
+            <ng-container matColumnDef="minAmount">
+                <th mat-header-cell *matHeaderCellDef> Min Amount </th>
+                <td mat-cell *matCellDef="let element;let index = index" style="width:20%">
+                    <editable (update)="updateField(index, 'minAmount')">
+                        <ng-template viewMode>
+                            {{element.minAmount}}
+                        </ng-template>
+                        <ng-template editMode>
+                            <input type="number" [formControl]="getControl(index, 'minAmount')" focusable editableOnEnter>
+                        </ng-template>
+                    </editable>
+                </td>
+                <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
+
+            <!-- Max Column -->
+            <ng-container matColumnDef="maxAmount">
+                <th mat-header-cell *matHeaderCellDef> Max Amount </th>
+                <td mat-cell *matCellDef="let element;let index = index" style="width:20%">
+                    <editable (update)="updateField(index, 'maxAmount')">
+                        <ng-template viewMode>
+                            {{element.maxAmount}}
+                        </ng-template>
+                        <ng-template editMode>
+                            <input type="number" [formControl]="getControl(index, 'maxAmount')" focusable editableOnEnter>
+                        </ng-template>
+                    </editable>
+                </td>
+                <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
+
+            <!-- Probability Column -->
+            <ng-container matColumnDef="probability">
+                <th mat-header-cell *matHeaderCellDef> Probability </th>
+                <td mat-cell *matCellDef="let element;let index = index" style="width:20%">
+                    <editable (update)="updateField(index, 'probability')">
+                        <ng-template viewMode>
+                            {{element.probability}}%
+                        </ng-template>
+                        <ng-template editMode>
+                            <input type="number" [formControl]="getControl(index, 'probability')" focusable editableOnEnter>
+                        </ng-template>
+                    </editable>
+                </td>
+                <td mat-footer-cell *matFooterCellDef> {{getTotalProbabilty()}}% </td>
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+            <tr mat-footer-row *matFooterRowDef="displayedColumns; sticky: true"></tr>
         </table>
     </mat-card>
 </div>

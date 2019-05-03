@@ -10,19 +10,21 @@ import { ConfigService } from '../config.service';
 })
 export class ConfigComponent implements OnInit {
 
-  displayedColumns: string[] = ['name', 'color'];
+  displayedColumns: string[] = ['name', 'color', 'minAmount', 'maxAmount', 'probability'];
   dataSource = this.core.rewardList$;
   controls: FormArray;
 
-  constructor(private core: ConfigService){}
+  constructor(private core: ConfigService) { }
 
   ngOnInit() {
-   
     const toGroups = this.core.rewardList$.value.map(entity => {
       return new FormGroup({
-        name: new FormControl(entity.name, Validators.required), 
+        name: new FormControl(entity.name, Validators.required),
         color: new FormControl(entity.color, Validators.required),
-      },{updateOn: "blur"});
+        minAmount: new FormControl(entity.minAmount, Validators.required),
+        maxAmount: new FormControl(entity.maxAmount, Validators.required),
+        probability: new FormControl(entity.probability, Validators.required),
+      }, { updateOn: "blur" });
     });
 
     this.controls = new FormArray(toGroups);
@@ -32,13 +34,17 @@ export class ConfigComponent implements OnInit {
   updateField(index, field) {
     const control = this.getControl(index, field);
     if (control.valid) {
-      this.core.update(index,field,control.value);
+      this.core.update(index, field, control.value);
     }
 
-   }
+  }
 
   getControl(index, fieldName) {
-    const a  = this.controls.at(index).get(fieldName) as FormControl;
+    const a = this.controls.at(index).get(fieldName) as FormControl;
     return this.controls.at(index).get(fieldName) as FormControl;
+  }
+
+  getTotalProbabilty() {
+    return this.core.getTotalProbabilty();
   }
 }

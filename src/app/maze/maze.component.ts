@@ -3,8 +3,9 @@ import { FormBuilder, FormGroup } from '@angular/forms';
 import { MazeView } from '../models/mazeview';
 import { MazeGenerator } from '../models/mazegenerator';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material';
-import { RewardElement } from '../models/rewards'
+import { RewardConfigElement } from '../models/rewards'
 import { ConfigService } from '../config.service';
+import { RewardGenerator, RewardData } from '../models/rewardgenerator';
 import * as PF from './js/PathFinding';
 import * as StateMachine from 'javascript-state-machine';
 
@@ -21,6 +22,7 @@ export class MazeComponent implements OnInit, AfterViewInit {
     columns: number;
     private mazeView: MazeView;
     private mazeGenerator: MazeGenerator;
+    private rewardGenerator: RewardGenerator;
     options: FormGroup;
 
     stateMachine: any;
@@ -33,7 +35,6 @@ export class MazeComponent implements OnInit, AfterViewInit {
             rows: 20,
             columns: 7
         });
-
     }
 
     ngOnInit() {
@@ -350,6 +351,14 @@ export class MazeComponent implements OnInit, AfterViewInit {
                             }
                         }
                     }
+
+                    that.rewardGenerator = new RewardGenerator(that.configService, r, c);
+                    for (let i = 0; i < that.rewardGenerator.rewards.length; i++) {
+                        for (let j = 0; j < that.rewardGenerator.rewards[i].length; j++) {
+                            let rewardData = that.rewardGenerator.getReward(i,j);
+                            that.mazeView.setColor((j * 2), (i * 2), that.configService.getConfigReward(rewardData.rewardId).color);
+                        }
+                    }
                 },
                 /**
                  * When initializing, this method will be called to set the positions
@@ -468,15 +477,17 @@ export class MazeComponent implements OnInit, AfterViewInit {
     }
 
     openDialog(gridX, gridY): void {
+        console.log(gridX, gridY, this.rewardGenerator);
         const dialogRef = this.dialog.open(MazeRewardDialog, {
             width: '250px',
-            data: this.grid.getNodeAt(gridX, gridY).rewardId
+            data: this.rewardGenerator.getReward(gridY / 2, gridX / 2)
         });
 
         dialogRef.afterClosed().subscribe(result => {
             if(result) {
-                this.grid.getNodeAt(gridX, gridY).rewardId = result.reward;
-                this.mazeView.setColor(gridX, gridY, this.configService.getReward(result.reward).color);
+                this.rewardGenerator.getReward(gridY / 2, gridX / 2).rewardId = result.reward;
+                this.rewardGenerator.getReward(gridY / 2, gridX / 2).amount = result.amount;
+                this.mazeView.setColor(gridX, gridY, this.configService.getConfigReward(result.reward).color);
             }
         });
     }
@@ -497,16 +508,23 @@ export class MazeComponent implements OnInit, AfterViewInit {
 export class MazeRewardDialog {
 
     form: FormGroup;
-    rewards: RewardElement[];
+    rewards: RewardConfigElement[];
+    rewardValue: RewardData;
 
     constructor(private configService: ConfigService,
         private fb: FormBuilder,
         public dialogRef: MatDialogRef<MazeRewardDialog>,
-        @Inject(MAT_DIALOG_DATA) public data: number) {
+        @Inject(MAT_DIALOG_DATA) public data: RewardData) {
         this.form = fb.group({
-            reward: data
+            reward: data.rewardId,
+            amount: data.amount
         });
-        this.rewards = this.configService.getRewards();
+        this.rewardValue = data;
+        this.rewards = this.configService.getConfigRewards();
+    }
+
+    onChanged(event) {
+        this.rewardValue.rewardId = event.value;
     }
 
     onNoClick(): void {
