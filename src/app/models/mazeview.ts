@@ -147,6 +147,13 @@ export class MazeView {
     this.rects[gridY][gridX].attr({fill:color}).toFront();
   }
 
+  setResource(gridX: number, gridY: number, rewardId: string) {
+    var coord = this.toPageCoordinate(gridX, gridY);
+
+    var t = this.paper.text(coord[0], coord[1], rewardId);
+    t.attr({ fill:'#fff', "font-size": 20 });
+  }
+
 /**
  * Set the attribute of the node at the given coordinate.
  */
@@ -247,7 +254,8 @@ clearBlockedNodes() {
     }
 }
 
-drawPath(path: RaphaelSet) {
+drawPath(path: Array<Array<number>>) {
+    this.clearPath();
     if (!path.length) {
         return;
     }
@@ -258,14 +266,14 @@ drawPath(path: RaphaelSet) {
 /**
  * Given a path, build its SVG represention.
  */
-buildSvgPath(path: RaphaelSet) {
+buildSvgPath(path: Array<Array<number>>) {
     var i, strs = [], size = this.nodeSize;
 
-    strs.push('M' + (path[0][0] * size + size / 2) + ' ' +
-              (path[0][1] * size + size / 2));
+    strs.push('M' + (path[0][0] * size * 0.75 + size / 2) + ' ' +
+              (path[0][1] * size * 0.75 + size / 2));
     for (i = 1; i < path.length; ++i) {
-        strs.push('L' + (path[i][0] * size + size / 2) + ' ' +
-                  (path[i][1] * size + size / 2));
+        strs.push('L' + (path[i][0] * size * 0.75 + size / 2) + ' ' +
+                  (path[i][1] * size * 0.75 + size / 2));
     }
 
     return strs.join('');

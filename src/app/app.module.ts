@@ -12,6 +12,7 @@ import { MatDialogModule } from '@angular/material';
 import { MatTableModule } from '@angular/material/table';
 import { MatCardModule } from '@angular/material/card';
 import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -50,6 +51,7 @@ import { FocusableDirective } from './focusable.directive';
     MatTableModule,
     MatCardModule,
     MatSelectModule,
+    MatCheckboxModule,
     MccColorPickerModule.forRoot({
       used_colors: ['#000000', '#123456', '#777666']
     })

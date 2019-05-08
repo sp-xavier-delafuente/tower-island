@@ -8,6 +8,8 @@
             <input matInput placeholder="# Columns" type="number" formControlName="columns">
         </mat-form-field>
         <button mat-stroked-button (click)="drawMaze()">Draw Maze</button>
+        <button mat-stroked-button (click)="recalculatePath()">Recalculate Path</button>
+        <mat-checkbox (change)="onDrawPathChanged($event)">Draw Path</mat-checkbox>
     </form>
     <div id="draw_area" #drawArea (mousedown)="onMouseDown($event)" (mouseup)="onMouseUp($event)" (mousemove)="onMouseMove($event)"></div>
 </div>

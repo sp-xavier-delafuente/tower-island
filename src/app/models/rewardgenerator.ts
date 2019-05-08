@@ -1,14 +1,21 @@
 import { ConfigService } from '../config.service';
+import * as PF from '../maze/js/PathFinding.js';
 
 export class RewardData {
-    rewardId: number = 0;
+    rewardTypeId: number = 0;
     amount: number = 0;
+    catapultId: number = 0;
+    catapultType: string;
 }
 
 export class RewardGenerator {
     public readonly rewards: Array<Array<RewardData>> = [];
+    private catapults: number = 0;
 
-    constructor(private configService: ConfigService, public nRow: number, public nCol: number) {
+    constructor(private configService: ConfigService, private grid: PF.Grid) {
+        let nRow = (grid.height + 1) / 2;
+        let nCol = (grid.width + 1 ) / 2;
+
         for (let i = 0; i < nRow; i++) {
             this.rewards[i] = [];
             for (let j = 0; j < nCol; j++) {
@@ -24,11 +31,17 @@ export class RewardGenerator {
 
     generateRewards() {
         let totalProbabilty = this.configService.getTotalProbabilty();
-
-        for (let i = 0; i < this.rewards.length; i++) {
+        for (let i = this.rewards.length - 1; i >= 0; i--) { // from bottom to top
             for (let j = 0; j < this.rewards[i].length; j++) {
-                this.rewards[i][j].rewardId = this.getRandomReward(totalProbabilty);
-                this.rewards[i][j].amount = 2;
+                if(this.rewards[i][j].rewardTypeId == 0) { // if cell isn't already set 
+                    let rewardTypeId = 0;
+                    do {
+                        rewardTypeId = this.getRandomReward(totalProbabilty);
+                    } while(!this.passesRewardRules(i, j, rewardTypeId));
+
+                    this.setReward(i, j, rewardTypeId);
+                    this.generateLinkedRewards(i, j, rewardTypeId);
+                }
             }
         }
     }
@@ -48,6 +61,32 @@ export class RewardGenerator {
             i++;
         }
         return reward;
+    }
+
+    setReward(x: number, y: number, rewardTypeId: number) {
+        this.rewards[x][y].rewardTypeId = rewardTypeId;
+        this.rewards[x][y].amount = 2; //TODO
+
+        if(rewardTypeId == 1) {
+            this.catapults++;
+            this.rewards[x][y].catapultId = this.catapults;
+            this.rewards[x][y].catapultType = "Up";
+        }
+    }
+
+    passesRewardRules(x: number, y: number, rewardTypeId: number): boolean {
+        if(rewardTypeId == 1) { // catapult
+            return x > 0 && !this.grid.isWalkableAt(y * 2, (x * 2) - 1);
+        }      
+        return true;
+    }
+
+    generateLinkedRewards(x: number, y: number, rewardTypeId: number) {
+        if(rewardTypeId == 1) { // catapult
+            this.rewards[x - 1][y].rewardTypeId = rewardTypeId;
+            this.rewards[x - 1][y].catapultId = this.rewards[x][y].catapultId
+            this.rewards[x - 1][y].catapultType = "Down";
+        }
     }
 }
 

@@ -24,16 +24,28 @@ export class MazeComponent implements OnInit, AfterViewInit {
     private mazeGenerator: MazeGenerator;
     private rewardGenerator: RewardGenerator;
     options: FormGroup;
+    startX: number;
+    startY: number;
+    endX: number;
+    endY: number;
 
     stateMachine: any;
     grid: PF.Grid;
+    finder;
+    path: Array<Array<number>>;
     operationsPerSecond: 300;
-
+    drawPath: boolean = false;
 
     constructor(fb: FormBuilder, public dialog: MatDialog, private configService: ConfigService) {
         this.options = fb.group({
-            rows: 20,
-            columns: 7
+            rows: 4,
+            columns: 4
+        });
+
+        this.finder = new PF.AStarFinder({
+            allowDiagonal: false,
+            dontCrossCorners: false,
+            weight: 1
         });
     }
 
@@ -132,7 +144,11 @@ export class MazeComponent implements OnInit, AfterViewInit {
 
                     this.setDefaultStartEndPos();
                     this.transition(); // transit to the next state (ready)
-                    this.hookPathFinding();
+                  //  this.hookPathFinding();
+
+                    that.path = that.finder.findPath(
+                        that.startX, that.startY, that.endX, that.endY, that.grid
+                    );
 
                     return StateMachine.ASYNC;
                     // => ready
@@ -145,7 +161,7 @@ export class MazeComponent implements OnInit, AfterViewInit {
                     this.setWalkableAt(gridX, gridY, true);
                     // => erasingWall
                 },
-                onfinish(event, from, to) {
+               /* onfinish(event, from, to) {
                     that.mazeView.drawPath(this.path);
                     // => finished
                 },
@@ -156,7 +172,7 @@ export class MazeComponent implements OnInit, AfterViewInit {
                 },
                 onmodify(event, from, to) {
                     // => modified
-                },
+                },*/
                 onreset: function (event, from, to) {
                     that.rows = that.options.get('rows').value * 2 - 1;
                     that.columns = that.options.get('columns').value * 2 - 1;
@@ -164,8 +180,17 @@ export class MazeComponent implements OnInit, AfterViewInit {
 
                     that.mazeView.drawMaze(that.rows, that.columns);
                     this.buildNewGrid();
+
                     this.setDefaultStartEndPos();
 
+                    that.path = that.finder.findPath(
+                        that.startX, that.startY, that.endX, that.endY, that.grid
+                    );
+
+                    console.log(that.grid);
+                    console.log(that.path);
+
+                    that.drawPathIfNeeded();
                     // => ready
                 },
 
@@ -173,7 +198,7 @@ export class MazeComponent implements OnInit, AfterViewInit {
                  * The following functions are called on entering states.
                  */
 
-                onready() {
+               /* onready() {
                     console.log('=> ready');
                     // => [starting, draggingStart, draggingEnd, drawingStart, drawingEnd]
                 },
@@ -245,7 +270,7 @@ export class MazeComponent implements OnInit, AfterViewInit {
                             enabled: true,
                             callback: this.clear,
                         });
-                },
+                },*/
 
                 /**
                  * Define setters and getters of PF.Node, then we can get the operations
@@ -328,6 +353,7 @@ export class MazeComponent implements OnInit, AfterViewInit {
                 },
                 clearAll() {
                     this.clearFootprints();
+                    this.clearOperations();
                     that.mazeView.clearBlockedNodes();
                 },
                 buildNewGrid() {
@@ -352,11 +378,11 @@ export class MazeComponent implements OnInit, AfterViewInit {
                         }
                     }
 
-                    that.rewardGenerator = new RewardGenerator(that.configService, r, c);
+                    that.rewardGenerator = new RewardGenerator(that.configService, that.grid);
                     for (let i = 0; i < that.rewardGenerator.rewards.length; i++) {
                         for (let j = 0; j < that.rewardGenerator.rewards[i].length; j++) {
-                            let rewardData = that.rewardGenerator.getReward(i,j);
-                            that.mazeView.setColor((j * 2), (i * 2), that.configService.getConfigReward(rewardData.rewardId).color);
+                            let rewardData = that.rewardGenerator.getReward(i, j);
+                            that.mazeView.setColor((j * 2), (i * 2), that.configService.getConfigReward(rewardData.rewardTypeId).color);
                         }
                     }
                 },
@@ -370,13 +396,13 @@ export class MazeComponent implements OnInit, AfterViewInit {
                     this.setStartPos(0, that.rows - 1);
                 },
                 setStartPos(gridX, gridY) {
-                    this.startX = gridX;
-                    this.startY = gridY;
+                    that.startX = Number(gridX);
+                    that.startY = Number(gridY);
                     that.mazeView.setStartPos(Number(gridX), Number(gridY));
                 },
                 setEndPos(gridX, gridY) {
-                    this.endX = gridX;
-                    this.endY = gridY;
+                    that.endX = Number(gridX);
+                    that.endY = Number(gridY);
                     that.mazeView.setEndPos(Number(gridX), Number(gridY));
                 },
                 setWalkableAt(gridX, gridY, walkable) {
@@ -386,10 +412,10 @@ export class MazeComponent implements OnInit, AfterViewInit {
                     }
                 },
                 isStartPos(gridX, gridY) {
-                    return gridX === this.startX && gridY === this.startY;
+                    return Number(gridX) === that.startX && Number(gridY) === that.startY;
                 },
                 isEndPos(gridX, gridY) {
-                    return gridX === this.endX && gridY === this.endY;
+                    return Number(gridX) === that.endX && Number(gridY) === that.endY;
                 },
                 isStartOrEndPos(gridX, gridY) {
                     return this.isStartPos(gridX, gridY) || this.isEndPos(gridX, gridY);
@@ -477,15 +503,14 @@ export class MazeComponent implements OnInit, AfterViewInit {
     }
 
     openDialog(gridX, gridY): void {
-        console.log(gridX, gridY, this.rewardGenerator);
         const dialogRef = this.dialog.open(MazeRewardDialog, {
             width: '250px',
             data: this.rewardGenerator.getReward(gridY / 2, gridX / 2)
         });
 
         dialogRef.afterClosed().subscribe(result => {
-            if(result) {
-                this.rewardGenerator.getReward(gridY / 2, gridX / 2).rewardId = result.reward;
+            if (result) {
+                this.rewardGenerator.getReward(gridY / 2, gridX / 2).rewardTypeId = result.reward;
                 this.rewardGenerator.getReward(gridY / 2, gridX / 2).amount = result.amount;
                 this.mazeView.setColor(gridX, gridY, this.configService.getConfigReward(result.reward).color);
             }
@@ -499,6 +524,29 @@ export class MazeComponent implements OnInit, AfterViewInit {
     drawMaze() {
         this.stateMachine.reset();
     }
+
+    recalculatePath() {
+        let grid = this.grid.clone();
+        this.path = this.finder.findPath(
+            this.startX, this.startY, this.endX, this.endY, grid
+        );
+        this.drawPathIfNeeded();
+    }
+
+    onDrawPathChanged(event: any) {
+        this.drawPath = event.checked;
+        this.drawPathIfNeeded();
+    }
+
+    drawPathIfNeeded() {
+        if(this.drawPath) {
+            this.mazeView.drawPath(this.path);
+        }
+        else {
+            this.mazeView.clearPath();
+        }
+    }
+
 }
 
 @Component({
@@ -516,15 +564,16 @@ export class MazeRewardDialog {
         public dialogRef: MatDialogRef<MazeRewardDialog>,
         @Inject(MAT_DIALOG_DATA) public data: RewardData) {
         this.form = fb.group({
-            reward: data.rewardId,
-            amount: data.amount
+            reward: data.rewardTypeId,
+            amount: data.amount,
+            catapultId: data.catapultId
         });
         this.rewardValue = data;
         this.rewards = this.configService.getConfigRewards();
     }
 
     onChanged(event) {
-        this.rewardValue.rewardId = event.value;
+        this.rewardValue.rewardTypeId = event.value;
     }
 
     onNoClick(): void {

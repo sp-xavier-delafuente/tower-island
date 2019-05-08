@@ -55,33 +55,6 @@ export class Cell {
     throw new Error('These two cells are not neighbors.');
   }
 
-  draw(ctx: CanvasRenderingContext2D, length: number) {
-    if (this.northWall) {
-      ctx.beginPath();
-      ctx.moveTo(this.col * length, this.row * length);
-      ctx.lineTo((this.col + 1) * length, this.row * length);
-      ctx.stroke();
-    }
-    if (this.eastWall) {
-      ctx.beginPath();
-      ctx.moveTo((this.col + 1) * length, this.row * length);
-      ctx.lineTo((this.col + 1) * length, (this.row + 1) * length);
-      ctx.stroke();
-    }
-    if (this.southWall) {
-      ctx.beginPath();
-      ctx.moveTo((this.col + 1) * length, (this.row + 1) * length);
-      ctx.lineTo(this.col * length, (this.row + 1) * length);
-      ctx.stroke();
-    }
-    if (this.westWall) {
-      ctx.beginPath();
-      ctx.moveTo(this.col * length, (this.row + 1) * length);
-      ctx.lineTo(this.col * length, this.row * length);
-      ctx.stroke();
-    }
-  }
-
   equals(another: Cell): boolean {
     return this.row === another.row && this.col === another.col;
   }
