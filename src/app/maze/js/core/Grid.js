@@ -142,6 +142,18 @@ Grid.prototype.setWalkableAt = function(x, y, walkable) {
 };
 
 
+Grid.prototype.isCatapultAt = function(x, y) {
+    return this.isInside(x, y) && this.nodes[y][x].catapultTo != null;
+};
+
+Grid.prototype.getCatapultTo = function(x, y) {
+    return this.nodes[y][x].catapultTo;
+};
+
+Grid.prototype.setCatapultAt = function(x, y, to) {
+    this.nodes[y][x].catapultTo = to;
+};
+
 /**
  * Get the neighbors of the given node.
  *
@@ -193,6 +205,11 @@ Grid.prototype.getNeighbors = function(node, diagonalMovement) {
     if (this.isWalkableAt(x - 1, y)) {
         neighbors.push(nodes[y][x - 1]);
         s3 = true;
+    }
+
+    if (this.isCatapultAt(x, y)) {
+        var position = this.getCatapultTo(x, y);
+        neighbors.push(nodes[position[1]][position[0]]);
     }
 
     if (diagonalMovement === DiagonalMovement.Never) {
@@ -256,7 +273,7 @@ Grid.prototype.clone = function() {
     for (i = 0; i < height; ++i) {
         newNodes[i] = new Array(width);
         for (j = 0; j < width; ++j) {
-            newNodes[i][j] = new Node(j, i, thisNodes[i][j].isWallPosition, thisNodes[i][j].walkable);
+            newNodes[i][j] = new Node(j, i, thisNodes[i][j].isWallPosition, thisNodes[i][j].walkable, thisNodes[i][j].catapultTo);
         }
     }
 

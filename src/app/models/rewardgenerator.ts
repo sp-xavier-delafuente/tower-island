@@ -5,7 +5,7 @@ export class RewardData {
     rewardTypeId: number = 0;
     amount: number = 0;
     catapultId: number = 0;
-    catapultType: string;
+    catapultTo: number[] = [];
 }
 
 export class RewardGenerator {
@@ -70,24 +70,49 @@ export class RewardGenerator {
         if(rewardTypeId == 1) {
             this.catapults++;
             this.rewards[x][y].catapultId = this.catapults;
-            this.rewards[x][y].catapultType = "Up";
         }
     }
 
     passesRewardRules(x: number, y: number, rewardTypeId: number): boolean {
         if(rewardTypeId == 1) { // catapult
-            return x > 0 && !this.grid.isWalkableAt(y * 2, (x * 2) - 1);
+            return (this.grid.isInside(y * 2, (x * 2) - 1) && !this.grid.isWalkableAt(y * 2, (x * 2) - 1)) ||
+             (this.grid.isInside(y * 2, (x * 2) + 1)  && !this.grid.isWalkableAt(y * 2, (x * 2) + 1));
         }      
         return true;
     }
 
     generateLinkedRewards(x: number, y: number, rewardTypeId: number) {
         if(rewardTypeId == 1) { // catapult
-            this.rewards[x - 1][y].rewardTypeId = rewardTypeId;
-            this.rewards[x - 1][y].catapultId = this.rewards[x][y].catapultId
-            this.rewards[x - 1][y].catapultType = "Down";
+            if(this.grid.isInside(y * 2, (x * 2) - 1) && !this.grid.isWalkableAt(y * 2, (x * 2) - 1)) { // down
+                this.rewards[x - 1][y].rewardTypeId = 2; //catapult landing
+                this.rewards[x - 1][y].catapultId = this.rewards[x][y].catapultId;
+                this.rewards[x][y].catapultTo.push(y * 2);
+                this.rewards[x][y].catapultTo.push((x  * 2) - 1);
+            }
+            else if(this.grid.isInside(y * 2, (x * 2) + 1) && !this.grid.isWalkableAt(y * 2, (x * 2) + 1)) { // up
+                this.rewards[x + 1][y].rewardTypeId = 2; //catapult landing
+                this.rewards[x + 1][y].catapultId = this.rewards[x][y].catapultId;
+                this.rewards[x][y].catapultTo.push(y * 2);
+                this.rewards[x][y].catapultTo.push((x * 2) + 1);
+            }
         }
     }
+
+    findCatapult(catapultId: number, isOrigin: boolean) {
+        for (let x = this.rewards.length - 1; x >= 0; x--) { // from bottom to top
+            for (let y = 0; y < this.rewards[x].length; y++) {
+                if(this.rewards[x][y].catapultId == catapultId && isOrigin && this.rewards[x][y].rewardTypeId == 1)
+                {
+                    return [x,y];
+                }
+                if(this.rewards[x][y].catapultId == catapultId && !isOrigin && this.rewards[x][y].rewardTypeId == 2)
+                {
+                    return [x,y];
+                }
+            }
+        }
+        return null;
+    };
 }
 
 class RandomNumber {

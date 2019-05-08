@@ -11,10 +11,11 @@ export class ConfigService {
   rewardList: RewardConfigElement[] = [
     { id: 0, name: 'None', color: '#FFFFFF', minAmount: 0, maxAmount: 0, probability: 50},
     { id: 1, name: 'Catapult', color: '#00FF00', minAmount: 0, maxAmount: 0, probability: 4},
-    { id: 2, name: 'Food', color: '#FF0000', minAmount: 200, maxAmount: 1000, probability: 20},
-    { id: 3, name: 'Gold', color: '#F1C232', minAmount: 30, maxAmount: 2000, probability: 16},
-    { id: 4, name: 'Event points', color: '#A64D79', minAmount: 5, maxAmount: 100, probability: 8},
-    { id: 5, name: 'Cash', color:'#D9D2E9', minAmount: 2, maxAmount: 20, probability: 2}
+    { id: 2, name: 'Catapult Landing', color: '#00FF00', minAmount: 0, maxAmount: 0, probability: 0},
+    { id: 3, name: 'Food', color: '#FF0000', minAmount: 200, maxAmount: 1000, probability: 20},
+    { id: 4, name: 'Gold', color: '#F1C232', minAmount: 30, maxAmount: 2000, probability: 16},
+    { id: 5, name: 'Event points', color: '#A64D79', minAmount: 5, maxAmount: 100, probability: 8},
+    { id: 6, name: 'Cash', color:'#D9D2E9', minAmount: 2, maxAmount: 20, probability: 2}
   ];
   rewardList$: BehaviorSubject<RewardConfigElement[]> = new BehaviorSubject(this.rewardList);
 

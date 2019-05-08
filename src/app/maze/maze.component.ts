@@ -38,8 +38,8 @@ export class MazeComponent implements OnInit, AfterViewInit {
 
     constructor(fb: FormBuilder, public dialog: MatDialog, private configService: ConfigService) {
         this.options = fb.group({
-            rows: 4,
-            columns: 4
+            rows: 20,
+            columns: 7
         });
 
         this.finder = new PF.AStarFinder({
@@ -144,7 +144,7 @@ export class MazeComponent implements OnInit, AfterViewInit {
 
                     this.setDefaultStartEndPos();
                     this.transition(); // transit to the next state (ready)
-                  //  this.hookPathFinding();
+                    //  this.hookPathFinding();
 
                     that.path = that.finder.findPath(
                         that.startX, that.startY, that.endX, that.endY, that.grid
@@ -161,18 +161,18 @@ export class MazeComponent implements OnInit, AfterViewInit {
                     this.setWalkableAt(gridX, gridY, true);
                     // => erasingWall
                 },
-               /* onfinish(event, from, to) {
-                    that.mazeView.drawPath(this.path);
-                    // => finished
-                },
-                onclear(event, from, to) {
-                    this.clearOperations();
-                    this.clearFootprints();
-                    // => ready
-                },
-                onmodify(event, from, to) {
-                    // => modified
-                },*/
+                /* onfinish(event, from, to) {
+                     that.mazeView.drawPath(this.path);
+                     // => finished
+                 },
+                 onclear(event, from, to) {
+                     this.clearOperations();
+                     this.clearFootprints();
+                     // => ready
+                 },
+                 onmodify(event, from, to) {
+                     // => modified
+                 },*/
                 onreset: function (event, from, to) {
                     that.rows = that.options.get('rows').value * 2 - 1;
                     that.columns = that.options.get('columns').value * 2 - 1;
@@ -187,9 +187,6 @@ export class MazeComponent implements OnInit, AfterViewInit {
                         that.startX, that.startY, that.endX, that.endY, that.grid
                     );
 
-                    console.log(that.grid);
-                    console.log(that.path);
-
                     that.drawPathIfNeeded();
                     // => ready
                 },
@@ -198,79 +195,79 @@ export class MazeComponent implements OnInit, AfterViewInit {
                  * The following functions are called on entering states.
                  */
 
-               /* onready() {
-                    console.log('=> ready');
-                    // => [starting, draggingStart, draggingEnd, drawingStart, drawingEnd]
-                },
-                onstarting(event, from, to) {
-                    console.log('=> starting');
-                    // Clears any existing search progress
-                    this.clearFootprints();
-                    this.setButtonStates({
-                        id: 2,
-                        enabled: true,
-                    });
-                    this.search();
-                    // => searching
-                },
-                onsearching() {
-                    console.log('=> searching');
-                    this.setButtonStates({
-                        id: 1,
-                        text: 'Restart Search',
-                        enabled: true,
-                        callback: this.restart,
-                    }, {
-                            id: 2,
-                            text: 'Pause Search',
-                            enabled: true,
-                            callback: this.pause,
-                        });
-                    // => [paused, finished]
-                },
-                onpaused() {
-                    console.log('=> paused');
-                    this.setButtonStates({
-                        id: 1,
-                        text: 'Resume Search',
-                        enabled: true,
-                        callback: this.resume,
-                    }, {
-                            id: 2,
-                            text: 'Cancel Search',
-                            enabled: true,
-                            callback: this.cancel,
-                        });
-                    // => [searching, ready]
-                },
-                onfinished() {
-                    console.log('=> finished');
-                    this.setButtonStates({
-                        id: 1,
-                        text: 'Restart Search',
-                        enabled: true,
-                        callback: this.restart,
-                    }, {
-                            id: 2,
-                            text: 'Clear Path',
-                            enabled: true,
-                            callback: this.clear,
-                        });
-                },
-                onmodified() {
-                    console.log('=> modified');
-                    this.setButtonStates({
-                        id: 1,
-                        text: 'Start Search',
-                        enabled: true,
-                        callback: this.start,
-                    }, {
-                            id: 2,
-                            text: 'Clear Path',
-                            enabled: true,
-                            callback: this.clear,
-                        });
-                },*/
+                /* onready() {
+                     console.log('=> ready');
+                     // => [starting, draggingStart, draggingEnd, drawingStart, drawingEnd]
+                 },
+                 onstarting(event, from, to) {
+                     console.log('=> starting');
+                     // Clears any existing search progress
+                     this.clearFootprints();
+                     this.setButtonStates({
+                         id: 2,
+                         enabled: true,
+                     });
+                     this.search();
+                     // => searching
+                 },
+                 onsearching() {
+                     console.log('=> searching');
+                     this.setButtonStates({
+                         id: 1,
+                         text: 'Restart Search',
+                         enabled: true,
+                         callback: this.restart,
+                     }, {
+                             id: 2,
+                             text: 'Pause Search',
+                             enabled: true,
+                             callback: this.pause,
+                         });
+                     // => [paused, finished]
+                 },
+                 onpaused() {
+                     console.log('=> paused');
+                     this.setButtonStates({
+                         id: 1,
+                         text: 'Resume Search',
+                         enabled: true,
+                         callback: this.resume,
+                     }, {
+                             id: 2,
+                             text: 'Cancel Search',
+                             enabled: true,
+                             callback: this.cancel,
+                         });
+                     // => [searching, ready]
+                 },
+                 onfinished() {
+                     console.log('=> finished');
+                     this.setButtonStates({
+                         id: 1,
+                         text: 'Restart Search',
+                         enabled: true,
+                         callback: this.restart,
+                     }, {
+                             id: 2,
+                             text: 'Clear Path',
+                             enabled: true,
+                             callback: this.clear,
+                         });
+                 },
+                 onmodified() {
+                     console.log('=> modified');
+                     this.setButtonStates({
+                         id: 1,
+                         text: 'Start Search',
+                         enabled: true,
+                         callback: this.start,
+                     }, {
+                             id: 2,
+                             text: 'Clear Path',
+                             enabled: true,
+                             callback: this.clear,
+                         });
+                 },*/
 
                 /**
                  * Define setters and getters of PF.Node, then we can get the operations
@@ -383,6 +380,11 @@ export class MazeComponent implements OnInit, AfterViewInit {
                         for (let j = 0; j < that.rewardGenerator.rewards[i].length; j++) {
                             let rewardData = that.rewardGenerator.getReward(i, j);
                             that.mazeView.setColor((j * 2), (i * 2), that.configService.getConfigReward(rewardData.rewardTypeId).color);
+
+                            if (rewardData.rewardTypeId == 1) {
+                                //set the catapult and where is going
+                                that.setCatapult((j * 2), (i * 2), rewardData.catapultTo[0], rewardData.catapultTo[1]);
+                            }
                         }
                     }
                 },
@@ -411,6 +413,7 @@ export class MazeComponent implements OnInit, AfterViewInit {
                         that.mazeView.setAttributeAt(Number(gridX), Number(gridY), 'walkable', walkable);
                     }
                 },
+
                 isStartPos(gridX, gridY) {
                     return Number(gridX) === that.startX && Number(gridY) === that.startY;
                 },
@@ -513,6 +516,19 @@ export class MazeComponent implements OnInit, AfterViewInit {
                 this.rewardGenerator.getReward(gridY / 2, gridX / 2).rewardTypeId = result.reward;
                 this.rewardGenerator.getReward(gridY / 2, gridX / 2).amount = result.amount;
                 this.mazeView.setColor(gridX, gridY, this.configService.getConfigReward(result.reward).color);
+
+                if (result.reward == 1 || result.reward == 2) { // catapult or catapult landing
+                    //set the catapult and where is going
+                    this.rewardGenerator.getReward(gridY / 2, gridX / 2).catapultId = result.catapultId;
+
+                    let isOriginCatapult = result.reward == 1;
+                    let catapultLinkPosition = this.rewardGenerator.findCatapult(result.catapultId, !isOriginCatapult);
+                    if (isOriginCatapult && catapultLinkPosition != null) {
+                        this.setCatapult(gridX, gridY, catapultLinkPosition[1] * 2, catapultLinkPosition[0] * 2);
+                    } else if(catapultLinkPosition != null){
+                        this.setCatapult(catapultLinkPosition[1] * 2, catapultLinkPosition[0] * 2, gridX, gridY);
+                    }
+                }
             }
         });
     }
@@ -539,12 +555,16 @@ export class MazeComponent implements OnInit, AfterViewInit {
     }
 
     drawPathIfNeeded() {
-        if(this.drawPath) {
+        if (this.drawPath) {
             this.mazeView.drawPath(this.path);
         }
         else {
             this.mazeView.clearPath();
         }
+    }
+
+    setCatapult(gridX, gridY, toX, toY) {
+        this.grid.setCatapultAt(gridX, gridY, [toX, toY]);
     }
 
 }

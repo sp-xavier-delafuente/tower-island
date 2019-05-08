@@ -8,11 +8,11 @@
             </mat-option>
         </mat-select>
     </mat-form-field>
-    <mat-form-field *ngIf="rewardValue.rewardTypeId != 0 && rewardValue.rewardTypeId != 1">
+    <mat-form-field *ngIf="rewardValue.rewardTypeId != 0 && rewardValue.rewardTypeId != 1 && rewardValue.rewardTypeId != 2">
         <mat-label>Amount</mat-label>
         <input matInput placeholder="Amount" type="number" formControlName="amount">
     </mat-form-field>
-    <mat-form-field *ngIf="rewardValue.rewardTypeId == 1">
+    <mat-form-field *ngIf="rewardValue.rewardTypeId == 1 || rewardValue.rewardTypeId == 2">
         <mat-label>Id</mat-label>
         <input matInput type="number" formControlName="catapultId">
     </mat-form-field>

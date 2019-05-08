@@ -8,7 +8,7 @@
  * @param {boolean} [isWallPosition] - Whether this node is walkable.
  * @param {boolean} [walkable] - Whether this node is walkable.
  */
-function Node(x, y, isWallPosition, walkable) {
+function Node(x, y, isWallPosition, walkable, catapultTo) {
     /**
      * The x coordinate of the node on the grid.
      * @type number
@@ -28,7 +28,9 @@ function Node(x, y, isWallPosition, walkable) {
      * Whether this node can be a wall
      * @type boolean
      */
-    this.isWallPosition = (isWallPosition === undefined ? false : isWallPosition)
+    this.isWallPosition = (isWallPosition === undefined ? false : isWallPosition);
+
+    this.catapultTo = catapultTo;
 }
 
 module.exports = Node;
